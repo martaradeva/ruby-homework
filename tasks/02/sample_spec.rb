@@ -28,11 +28,6 @@ describe NumberSet do
     expect(set.size).to eq 4
   end
 
-  it 'can check for inclusion' do
-    set = NumberSet.new << 1 << 2 << 3
-    expect (set.incl(2)).to eq true
-  end
-
   it 'contains only unique numbers' do
     set = NumberSet.new << 1 << 1 #<< Rational(2,2)
     expect(set.size).to eq 1
