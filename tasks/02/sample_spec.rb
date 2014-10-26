@@ -9,7 +9,8 @@ describe NumberSet do
   end
 
   it 'can hold one number' do
-    expect(NumberSet.new<<1).to eq [1]
+    set = NumberSet.new << 1
+    expect(set.include?(1)).to eq true
   end
 
   it 'can hold multiple numbers' do
@@ -29,9 +30,49 @@ describe NumberSet do
   end
 
   it 'contains only unique numbers' do
-    set = NumberSet.new << 1 << 1 #<< Rational(2,2)
+    set = NumberSet.new << 1 << 1 << Rational(2,2)
     expect(set.size).to eq 1
   end
+
+  # it 'can redefine [] method' do
+  #   expect(NumberSet.new['a']).to eq 'a'
+  # end
+
+   it 'can access block in [] method' do
+    set = NumberSet.new << 1 << 2 << 3
+    expect(set[ & -> (n) {n.even?} ].to_a).to eq [2]
+    # expect(set[{|n| n.even? } ].to_a).to eq [2]
+  end
+
+  it '[] method can filter when given a block' do
+    set = NumberSet.new << 1 << 2 << 3
+    # filth = Filter.new {|number| number.odd?}
+    filth = lambda {|number| number.odd?}
+    expect(set[&filth].to_a).to eq [1,3]
+  end
+
+  # it 'Filter class outputs block correctly' do
+  #   filth = Filter.new {}
+
+  it '[] can filter via Filter class instance' do
+    set = NumberSet.new << 1 << 2 << 3
+    expect(set[Filter.new { |n| n.odd? }].to_a).to eq [1,3]
+  end
+
+  it 'can filter via TypeFilter' do
+    set = NumberSet.new << 1 << Rational(2,3) << 3
+    expect(set[TypeFilter.new(:integer)].to_a).to eq [1,3]
+  end
+
+end
+
+
+  # it 'can use plain filter'do
+  #   set = NumberSet.new << 1 << 2 << 3
+  #   filth = lambda { |number| number.odd?}
+  #   philtered_set = NumberSet.new << 1 << 3
+  #   expect(set.filtrate(filth)).to eq philtered_set
+  # end
 
   # it 'contains multiple numbers' do
   #   numbers = NumberSet.new
@@ -133,4 +174,3 @@ describe NumberSet do
   #   expect(filtered_numbers.class).to eq NumberSet
   # end
 
-end
