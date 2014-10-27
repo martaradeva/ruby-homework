@@ -38,139 +38,63 @@ describe NumberSet do
   #   expect(NumberSet.new['a']).to eq 'a'
   # end
 
-   it 'can access block in [] method' do
-    set = NumberSet.new << 1 << 2 << 3
-    expect(set[ & -> (n) {n.even?} ].to_a).to eq [2]
-    # expect(set[{|n| n.even? } ].to_a).to eq [2]
-  end
+  #  it 'can access block in [] method' do
+  #   set = NumberSet.new << 1 << 2 << 3
+  #   expect(set[ & -> (n) {n.even?} ].to_a).to eq [2]
+  #   # expect(set[{|n| n.even? } ].to_a).to eq [2]
+  # end
 
-  it '[] method can filter when given a block' do
-    set = NumberSet.new << 1 << 2 << 3
-    # filth = Filter.new {|number| number.odd?}
-    filth = lambda {|number| number.odd?}
-    expect(set[&filth].to_a).to eq [1,3]
-  end
+  # it '[] method can filter when given a block' do
+  #   set = NumberSet.new << 1 << 2 << 3
+  #   # filth = Filter.new {|number| number.odd?}
+  #   expect(set[ { |number| number.odd?} ].to_a).to eq [1,3]
+  # end
 
   # it 'Filter class outputs block correctly' do
   #   filth = Filter.new {}
 
+  # it 'Filter.new works' do
+  #   expect(Filter.new(2){ |n| n.even?}).to eq true
+  # end
+
+  # it 'Filter.new passes block to @filter' do
+  #   expect(Filter.new {|n| n.odd?}).to eq true
+  # end
+
+  it 'has valid Filter class methods' do
+    expect(Filter.new{ |n| n.odd? }.accepts?(3)).to eq true
+  end
+
+
   it '[] can filter via Filter class instance' do
     set = NumberSet.new << 1 << 2 << 3
-    expect(set[Filter.new { |n| n.odd? }].to_a).to eq [1,3]
+    filtered_set = set[Filter.new{ |n| n.odd? }]
+    expect(filtered_set.to_a).to eq [1,3]
   end
 
-  it 'can filter via TypeFilter' do
-    set = NumberSet.new << 1 << Rational(2,3) << 3
-    expect(set[TypeFilter.new(:integer)].to_a).to eq [1,3]
+  it 'can filter via Typefilter' do
+    set = NumberSet.new << 1 << 2.5+3i << 3 << Rational(3,2)
+    filtered_set = set[TypeFilter.new(:complex)]
+    real_set = set[TypeFilter.new(:real)]
+    # expect(filtered_set.to_a).to eq [2.5+3i]
+    expect(real_set.to_a).to eq [Rational(3,2)]
   end
+
+  it 'can filter via SignFilter' do
+    set = NumberSet.new << 1 << -2 << 2 << 0
+    filtered_set = set[SignFilter.new(:positive)]
+    expect(filtered_set.to_a).to eq [1,2]
+  end
+
+  it 'can chain filter methods' do
+    set = NumberSet.new << 0 << 1 << 2 << 3
+    filtered_set = set[Filter.new{|n| n.even?} & SignFilter.new(:positive)]
+    expect(filtered_set.to_a).to eq [2]
+  end
+
+  # it 'can filter via TypeFilter' do
+  #   set = NumberSet.new << 1 << Rational(2,3) << 3
+  #   expect(set[TypeFilter.new(:integer)].to_a).to eq [1,3]
+  # end
 
 end
-
-
-  # it 'can use plain filter'do
-  #   set = NumberSet.new << 1 << 2 << 3
-  #   filth = lambda { |number| number.odd?}
-  #   philtered_set = NumberSet.new << 1 << 3
-  #   expect(set.filtrate(filth)).to eq philtered_set
-  # end
-
-  # it 'contains multiple numbers' do
-  #   numbers = NumberSet.new
-  #   numbers << Rational(22, 7)
-  #   numbers << 42
-  #   numbers << 3.14
-  #   expect(numbers.size).to eq 3
-  # end
- 
-#   it 'contains only unique numbers' do
-#     numbers = NumberSet.new
-#     numbers << 42
-#     numbers << 42
-#     expect(numbers.size).to eq 1
-#   end
- 
-  # it 'contains only unique numbers of different types' do
-  #   numbers = NumberSet.new
-  #   numbers << 42
-  #   numbers << 42.0
-  #   numbers << Rational(84, 2)
-  #   numbers << 42+0i
-  #   expect(numbers.size).to eq 1
-  # end
- 
-  # it 'can filter SignFilter' do
-  #   numbers = NumberSet.new
-  #   [Rational(-5, 2), 7.6, 0].each do |number|
-  #     numbers << number
-  #   end
-  #   filtered_numbers = numbers[SignFilter.new(:non_negative)]
-  #   expect(filtered_numbers.size).to eq 2
-  #   expect(filtered_numbers).to include 7.6, 0
-  #   expect(filtered_numbers).not_to include Rational(-5, 2)
-  # end
- 
-  # it 'can filter TypeFilter' do
-  #   numbers = NumberSet.new
-  #   [Rational(-5, 2), 7.6, 0].each do |number|
-  #     numbers << number
-  #   end
-  #   filtered_numbers = numbers[TypeFilter.new(:real)]
-  #   expect(filtered_numbers.size).to eq 2
-  #   expect(filtered_numbers).to include 7.6, Rational(-5, 2)
-  #   expect(filtered_numbers).not_to include 0
-  # end
- 
-  # it 'can filter standart filter' do
-  #   numbers = NumberSet.new
-  #   [Rational(-5, 2), 7.6, 0].each do |number|
-  #     numbers << number
-  #   end
-  #   filtered_numbers = numbers[Filter.new { |number| number != 0 }]
-  #   expect(filtered_numbers.size).to eq 2
-  #   expect(filtered_numbers).to include 7.6, Rational(-5, 2)
-  #   expect(filtered_numbers).not_to include 0
-  # end
- 
-  # it 'can combine two filters with "and" rule' do
-  #   numbers = NumberSet.new
-  #   [Rational(-5, 2), 7.6, 0].each do |number|
-  #     numbers << number
-  #   end
-  #   filtered_numbers = numbers[SignFilter.new(:non_negative) & Filter.new { |number| number != 0 }]
-  #   expect(filtered_numbers.size).to eq 1
-  #   expect(filtered_numbers).to include 7.6
-  #   expect(filtered_numbers).not_to include Rational(-5, 2), 0
-  # end
- 
-  # it 'can combine two filters with "or" rule' do
-  #   numbers = NumberSet.new
-  #   [Rational(-5, 2), 7.6, 0, 1, 3.4, 5+4i].each do |number|
-  #     numbers << number
-  #   end
-  #   filtered_numbers = numbers[TypeFilter.new(:real) | TypeFilter.new(:complex)]
-  #   expect(filtered_numbers.size).to eq 4
-  #   expect(filtered_numbers).to include Rational(-5, 2), 7.6, 3.4, 5+4i
-  #   expect(filtered_numbers).not_to include 1, 0
-  # end
- 
-  # it 'contains no elements' do
-  #   numbers = NumberSet.new
-  #   expect(numbers.empty?).to eq true
-  # end
- 
-  # it 'contains elements' do
-  #   numbers = NumberSet.new
-  #   numbers << 2
-  #   numbers << 3
-  #   expect(numbers.empty?).to eq false
-  # end
-
-  # it 'returns NumberSet object when filtered' do
-  #   numbers = NumberSet.new
-  #   [Rational(-5, 2), 7.6, 0].each do |number|
-  #     numbers << number
-  #   end
-  #   filtered_numbers = numbers[SignFilter.new(:non_negative)]
-  #   expect(filtered_numbers.class).to eq NumberSet
-  # end
-
