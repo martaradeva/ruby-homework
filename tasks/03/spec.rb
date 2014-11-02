@@ -113,32 +113,56 @@ describe RBFS do
     context 'number' do
       it 'can be detected' do
         expect(RBFS::File.new(42).data_type).to eq :number
+        end
       end
-    end
 
     context 'string' do
       it 'can be detected' do
         expect(RBFS::File.new("baba").data_type).to eq :string
+      end
     end
-  end
 
     context 'symbol' do
       it 'can be detected' do
         expect(RBFS::File.new(42.to_s.to_sym).data_type).to eq :symbol
+      end
     end
-  end
 
     context 'boolean' do
       it 'can be detected' do
         expect(RBFS::File.new(true).data_type).to eq :boolean
+      end
     end
-  end
 
     context 'nil' do
       it 'can be detected' do
         expect(RBFS::File.new().data_type).to eq :nil
+      end
     end
-  end
+
+    context 'serialization' do
+    let(:simple_serialized_string) do
+      [
+        'string:',
+          'Hello world!'
+      ].join ''
+    end
+
+    describe '#serialize' do
+      it 'can serialize' do
+        file = RBFS::File.new('Hello world!')
+        expect(file.serialize).to eq simple_serialized_string
+      end
+    end
+
+      describe '::parse' do
+        it 'can parse' do
+          parsed_file = RBFS::File.parse(simple_serialized_string)
+          expect(parsed_file.data).to eq        'Hello world!'
+          expect(parsed_file.data_type).to eq   :string
+        end
+      end
+    end
 
   end
 end
