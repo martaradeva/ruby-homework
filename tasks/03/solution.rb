@@ -1,85 +1,133 @@
 module RBFS
-  class File
-    attr_accessor :data
-
-    def initialize(*data)
-      @data = data[0]
+  class Parser
+    def initialize(string_data)
+      @data = string_data
     end
 
-    def data_type
-      case @data
-        when String                    then @data_type = :string
-        when Symbol                    then @data_type = :symbol
-        when Numeric                   then @data_type = :number
-        when (TrueClass or FalseClass) then @data_type = :boolean
-        else                                @data_type = :nil
+    def each
+      size = read_next_record.to_i
+
+      size.times do
+        entity_name   = read_next_record
+        entity_string = read_next_entity
+
+        yield entity_name, entity_string
       end
     end
 
-    def serialize
-      self.data_type.to_s + ':' + @data.to_s
+    private
+
+    def read_next_entity
+      size   = read_next_record.to_i
+      entity = @data[0...size]
+
+      @data = @data[size...@data.size]
+
+      entity
     end
 
-    def self.parse(string)
-      File.new string.split(":")[1]
+    def read_next_record
+      record, @data = @data.split(':', 2)
+
+      record
     end
   end
 
   class Directory
-    attr_reader :directories
-    attr_reader :files
-    attr_accessor :name
+    attr_reader :files, :directories
 
-    def initialize
-      @directories = {}
-      @files = {}
+    def initialize(files={}, directories={})
+      @files       = files
+      @directories = directories
     end
 
     def add_file(name, file)
-      if !name.include? ":" then @files.merge!({ name => file }) end
+      @files[name] = file
     end
 
-    def add_directory(name, *directory)
-      @directories.merge!(directory ? {name => directory[0]} : {name => Directory.new})
+    def add_directory(name, directory=Directory.new)
+      @directories[name] = directory
     end
 
-    def [](key)
-      @directories[key] or @files[key]
+    def [](name)
+      @directories[name] || @files[name]
     end
 
-    def serialize(directory)
-      "return string to save instead of object"
+    def serialize
+      files       = "#{@files.size}:#{serialize_entities(@files)}"
+      directories = "#{@directories.size}:#{serialize_entities(@directories)}"
+
+      "#{files}#{directories}"
     end
 
-    def self.parse(string)
-      "turns string into a Directory object"
+    def self.parse(string_data)
+      parser = Parser.new(string_data)
+
+      files       = {}
+      directories = {}
+
+      parser.each { |name, entity| files[name]       = File.parse(entity)      }
+      parser.each { |name, entity| directories[name] = Directory.parse(entity) }
+
+      Directory.new(files, directories)
+    end
+
+    private
+
+    def serialize_entities(entities)
+      entities.map do |name, entity|
+        serialized_entity = entity.serialize
+
+        "#{name}:#{serialized_entity.size}:#{serialized_entity}"
+      end.join('')
     end
   end
 
+  class File
+    attr_accessor :data
+
+    def initialize(data=nil)
+      @data = data
+    end
+
+    def data_type
+      case @data
+      when nil     then :nil
+      when String  then :string
+      when Symbol  then :symbol
+      when Numeric then :number
+      else              :boolean
+      end
+    end
+
+    def serialize
+      "#{data_type}:#{@data.to_s}"
+    end
+
+    def self.parse(string)
+      data = parse_data *string.split(':', 2)
+
+      File.new data
+    end
+
+    private
+
+    def self.parse_data(type, data)
+      case type
+      when 'nil'    then nil
+      when 'string' then data
+      when 'symbol' then data.to_sym
+      when 'number' then parse_number(data)
+      else               data == 'true'
+      end
+    end
+
+    def self.parse_number(data)
+      if data.include? '.'
+        data.to_f
+      else
+        data.to_i
+      end
+    end
+  end
 end
-
-
-
-    # def serialize(directory)
-    #   #return string to save instead of object
-    #   result = ''
-    #   result << @files.length.to_s + ":"
-    #   @files.each do |name, file|
-    #     result << [name, file.serialize.prepend(_.length.to_s + ":")].join(":")
-    #     #result << [name, file.serialize.length.to_s, file.serialize].join(":")
-    #   end
-    #   result << @directories.length.to_s + ":"
-    #   @directories.each do |folder|
-    #     result << folder[0].to_s << ":"
-    #     result serialize
-
-    #   result
-    # end
-
-  # class String
-  #   def take!(*length)
-  #     if length then self.slice! (0..length[0])
-  #     else chunk, self = self.split(":", 2)
-  #       chunk
-  #     end
-  #   end
