@@ -35,7 +35,7 @@ class Filter
   end
 
   def accepts?(number)
-        return true if @filter.call(number)
+    return true if @filter.call(number)
   end
 
   # def &(argument)

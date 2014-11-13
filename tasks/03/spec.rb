@@ -16,42 +16,59 @@ describe RBFS do
         directory.add_directory('SUBDIR')
         expect(directory.files).to eq({'README' => readme, 'spec.rb' => spec})
       end
+
+      it 'returns correct file hash 2' do
+        dir = RBFS::Directory.new
+        directory.add_directory('SUBDIR', dir)
+        expect(directory.directories).to eq({'SUBDIR' => dir})
+      end
+
+
+      # it 'can be created with a name' do
+      #   dir = RBFS::Directory.new("Pesho")
+      #   expect(dir.name).to eq "Pesho"
+      # end
+
+      it '#add_directory creates new dir when no dir is given' do
+        directory.add_directory("SUBDIR")
+        expect(directory.directories).to eq({'SUBDIR' => nil})
+      end
+
     end
+    context 'serialization' do
+      let(:simple_serialized_string) do
+        [
+          '2:',
+            'README:19:string:Hello world!',
+            'spec.rb:20:string:describe RBFS',
+          '1:',
+            'rbfs:4:',
+              '0:',
+              '0:',
+        ].join ''
+      end
 
-    # context 'serialization' do
-    #   let(:simple_serialized_string) do
-    #     [
-    #       '2:',
-    #         'README:19:string:Hello world!',
-    #         'spec.rb:20:string:describe RBFS',
-    #       '1:',
-    #         'rbfs:4:',
-    #           '0:',
-    #           '0:',
-    #     ].join ''
-    #   end
+      describe '#serialize' do
+        it 'can serialize' do
+          directory.add_file 'README',  RBFS::File.new('Hello world!')
+          directory.add_file 'spec.rb', RBFS::File.new('describe RBFS')
+          directory.add_directory 'rbfs'
 
-    #   describe '#serialize' do
-    #     it 'can serialize' do
-    #       directory.add_file 'README',  RBFS::File.new('Hello world!')
-    #       directory.add_file 'spec.rb', RBFS::File.new('describe RBFS')
-    #       directory.add_directory 'rbfs'
+          expect(directory.serialize).to eq simple_serialized_string
+        end
+      end
 
-    #       expect(directory.serialize).to eq simple_serialized_string
-    #     end
-    #   end
+      describe '::parse' do
+        it 'can parse' do
+          parsed_directory = RBFS::Directory.parse(simple_serialized_string)
 
-    #   describe '::parse' do
-    #     it 'can parse' do
-    #       parsed_directory = RBFS::Directory.parse(simple_serialized_string)
-
-    #       expect(parsed_directory.files.size     ).to eq    2
-    #       expect(parsed_directory['README'].data ).to eq    'Hello world!'
-    #       expect(parsed_directory['spec.rb'].data).to eq    'describe RBFS'
-    #       expect(parsed_directory['rbfs']        ).to be_an RBFS::Directory
-    #     end
-    #   end
-    # end
+          expect(parsed_directory.files.size     ).to eq    2
+          expect(parsed_directory['README'].data ).to eq    'Hello world!'
+          expect(parsed_directory['spec.rb'].data).to eq    'describe RBFS'
+          expect(parsed_directory['rbfs']        ).to be_an RBFS::Directory
+        end
+      end
+    end
 
     it 'can add a file' do
       file = RBFS::File.new('Hey there!')
