@@ -18,4 +18,13 @@ describe "String#anagrams" do
   it "eliminates anagram subsets or supersets" do
     anagrams_for "cool", amongst: ["col", "cooly"], are: []
   end
+
+    it "a word is not an anagram of itself" do
+    anagrams_for "world", amongst: ["World", "world", "wrold"], are: ["wrold"]
+  end
+
+    it "yields anagrams if block is given" do
+    ary = "world".anagrams(["World", "wroLd", "wrold"]){|word| puts word}
+    expect(ary).to match_array ["WROLD"]
+  end
 end
