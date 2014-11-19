@@ -47,8 +47,23 @@ module RBFS
       @directories[key] or @files[key]
     end
 
-    def serialize(directory)
-      "return string to save instead of object"
+    # def serialize(directory)
+    #   "return string to save instead of object"
+    # end
+
+    def serialize
+      #return string to save instead of object
+      result = ''
+      result << @files.length.to_s + ":"
+      @files.each do |name, file| 
+        result << [name, file.serialize.length.to_s, file.serialize].join(":")
+      end
+      result << @directories.length.to_s + ":"
+      @directories.each do |folder|
+        result << folder[0].to_s << ":"
+        result serialize
+      end
+      result
     end
 
     def self.parse(string)
@@ -60,21 +75,7 @@ end
 
 
 
-    # def serialize(directory)
-    #   #return string to save instead of object
-    #   result = ''
-    #   result << @files.length.to_s + ":"
-    #   @files.each do |name, file|
-    #     result << [name, file.serialize.prepend(_.length.to_s + ":")].join(":")
-    #     #result << [name, file.serialize.length.to_s, file.serialize].join(":")
-    #   end
-    #   result << @directories.length.to_s + ":"
-    #   @directories.each do |folder|
-    #     result << folder[0].to_s << ":"
-    #     result serialize
 
-    #   result
-    # end
 
   # class String
   #   def take!(*length)
