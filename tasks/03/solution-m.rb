@@ -5,15 +5,17 @@
 
     def next_by_column!
       chunk = self.split(":", 2)[0]
-      self.delete! chunk
-      self.slice! (0)
+      self.slice! (0 .. chunk.length)
       chunk
     end
 
     def read_next_file!
       file_name = self.next_by_column!
+      #puts file_name
       file_length = self.next_by_column!
+      #puts file_length
       file_serialized = self.next_by_length!(file_length)
+      #puts file_serialized
       [file_name, RBFS::File.parse(file_serialized)]
     end
   end
@@ -125,12 +127,10 @@ module RBFS
     def self.parse(string) #turns string into a Directory object
       parsed_directory = Directory.new
       number_of_files = string.next_by_column!
-      # number_of_files.to_i.times do
-      #   file_hash = read_next_file!(string)
-      #   parsed_directory.add_file(file_hash[0], file_hash[1])
-      # end
-      #puts string
-      puts string.read_next_file!.inspect
+      number_of_files.to_i.times do
+        file_hash = string.read_next_file!
+        parsed_directory.add_file(file_hash[0], file_hash[1])
+      end
       parsed_directory
     end
   end
