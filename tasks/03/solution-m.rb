@@ -21,7 +21,25 @@ module RBFS
     end
 
     def self.parse(string)
-      File.new string.split(":")[1]
+      data_type, data_string = string.split(":", 2)
+      file_content = parse_data(data_type, data_string)
+      # file_content = parse_data *string.split(":", 2) #I don't really understand what the wilcard goes for
+      File.new (file_content)
+    end
+
+    private
+    def self.parse_data(type, data)
+      case type
+        when "string" then parsed = data
+        when "symbol" then parsed = data.to_sym
+        when "number" then parsed = parse_number(data)
+        when "boolean" then (data == "true") ? parsed = true : parsed = false
+        when "" then parsed = nil
+      end
+    end
+
+    def self.parse_number(data)
+      if data.include? "." then data.to_f else data.to_i end
     end
   end
 
