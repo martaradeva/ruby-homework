@@ -1,4 +1,25 @@
+  class String
+    def next_by_length! (number)
+      self.slice! (0..number.to_i-1)
+    end
+
+    def next_by_column!
+      chunk = self.split(":", 2)[0]
+      self.delete! chunk
+      self.slice! (0)
+      chunk
+    end
+
+    def read_next_file!
+      file_name = self.next_by_column!
+      file_length = self.next_by_column!
+      file_serialized = self.next_by_length!(file_length)
+      [file_name, RBFS::File.parse(file_serialized)]
+    end
+  end
+
 module RBFS
+
   class File
     attr_accessor :data
 
@@ -23,7 +44,8 @@ module RBFS
     def self.parse(string)
       data_type, data_string = string.split(":", 2)
       file_content = parse_data(data_type, data_string)
-      # file_content = parse_data *string.split(":", 2) #I don't really understand what the wilcard goes for
+      # file_content = parse_data *string.split(":", 2) # I don't really understand what the wilcard goes for
+      # http://fmi.ruby.bg/lectures/05-blocks-procs-parallel-assignment-classes-enumerable#41
       File.new (file_content)
     end
 
@@ -46,7 +68,7 @@ module RBFS
   class Directory
     attr_reader :directories
     attr_reader :files
-    attr_accessor :name
+    attr_accessor :name # do I really need this??
 
     def initialize
       @directories = {}
@@ -69,6 +91,21 @@ module RBFS
     #   "return string to save instead of object"
     # end
 
+    # def serialize
+    #   #return string to save instead of object
+    #   result = ''
+    #   result << @files.length.to_s + ":"
+    #   @files.each do |name, file| 
+    #     result << [name, file.serialize.length.to_s, file.serialize].join(":")
+    #   end
+    #   result << @directories.length.to_s + ":"
+    #   @directories.each do |folder|
+    #     result << folder[0].to_s << ":"
+    #     result serialize
+    #   end
+    #   result
+    # end
+
     def serialize
       #return string to save instead of object
       result = ''
@@ -84,21 +121,19 @@ module RBFS
       result
     end
 
-    def self.parse(string)
-      "turns string into a Directory object"
+
+    def self.parse(string) #turns string into a Directory object
+      parsed_directory = Directory.new
+      number_of_files = string.next_by_column!
+      # number_of_files.to_i.times do
+      #   file_hash = read_next_file!(string)
+      #   parsed_directory.add_file(file_hash[0], file_hash[1])
+      # end
+      #puts string
+      puts string.read_next_file!.inspect
+      parsed_directory
     end
   end
 
 end
 
-
-
-
-
-  # class String
-  #   def take!(*length)
-  #     if length then self.slice! (0..length[0])
-  #     else chunk, self = self.split(":", 2)
-  #       chunk
-  #     end
-  #   end
