@@ -11,21 +11,15 @@
 
     def read_next_file!
       file_name = self.next_by_column!
-      #puts file_name
       file_length = self.next_by_column!
-      #puts file_length
       file_serialized = self.next_by_length!(file_length)
-      #puts file_serialized
       [file_name, RBFS::File.parse(file_serialized)]
     end
 
     def read_next_dir!
       dir_name = self.next_by_column!
-      #puts dir_name
       dir_length = self.next_by_column!
-      #puts dir_length
       dir_serialized = self.next_by_length!(dir_length)
-      #puts dir_serialized
       [dir_name, RBFS::Directory.parse(dir_serialized)]
     end
   end
@@ -80,19 +74,26 @@ module RBFS
   class Directory
     attr_reader :directories
     attr_reader :files
-    attr_accessor :name # do I really need this??
 
     def initialize
       @directories = {}
       @files = {}
     end
 
+    # def inspect
+    #   "files: #{@files.length}, directories: #{@directories.length}"
+    # end
+
     def add_file(name, file)
       if !name.include? ":" then @files.merge!({ name => file }) end
     end
 
     def add_directory(name, *directory)
-      @directories.merge!(directory ? {name => directory[0]} : {name => Directory.new})
+      if directory.length > 0
+      then new_dir = {name => directory[0]}
+      else new_dir = {name => RBFS::Directory.new}
+      end
+      @directories.merge!(new_dir)
     end
 
     def [](key)
@@ -106,9 +107,9 @@ module RBFS
         result << [name, file.serialize.length.to_s, file.serialize].join(":")
       end
       result << @directories.length.to_s + ":"
-      @directories.each do |folder|
-        result << folder[0].to_s << ":"
-        result serialize
+      @directories.each do |name, directory|
+        result << name << ":"
+        result << directory.serialize
       end
       result
     end
