@@ -18,6 +18,16 @@
       #puts file_serialized
       [file_name, RBFS::File.parse(file_serialized)]
     end
+
+    def read_next_dir!
+      dir_name = self.next_by_column!
+      #puts dir_name
+      dir_length = self.next_by_column!
+      #puts dir_length
+      dir_serialized = self.next_by_length!(dir_length)
+      #puts dir_serialized
+      [dir_name, RBFS::Directory.parse(dir_serialized)]
+    end
   end
 
 module RBFS
@@ -89,27 +99,7 @@ module RBFS
       @directories[key] or @files[key]
     end
 
-    # def serialize(directory)
-    #   "return string to save instead of object"
-    # end
-
-    # def serialize
-    #   #return string to save instead of object
-    #   result = ''
-    #   result << @files.length.to_s + ":"
-    #   @files.each do |name, file| 
-    #     result << [name, file.serialize.length.to_s, file.serialize].join(":")
-    #   end
-    #   result << @directories.length.to_s + ":"
-    #   @directories.each do |folder|
-    #     result << folder[0].to_s << ":"
-    #     result serialize
-    #   end
-    #   result
-    # end
-
     def serialize
-      #return string to save instead of object
       result = ''
       result << @files.length.to_s + ":"
       @files.each do |name, file| 
@@ -123,13 +113,17 @@ module RBFS
       result
     end
 
-
-    def self.parse(string) #turns string into a Directory object
+    def self.parse(string)
       parsed_directory = Directory.new
       number_of_files = string.next_by_column!
       number_of_files.to_i.times do
         file_hash = string.read_next_file!
         parsed_directory.add_file(file_hash[0], file_hash[1])
+      end
+      number_of_directories = string.next_by_column!
+      number_of_directories.to_i.times do
+        directory_hash = string.read_next_dir!
+        parsed_directory.add_directory(directory_hash[0], directory_hash[1])
       end
       parsed_directory
     end
