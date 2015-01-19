@@ -34,7 +34,7 @@ module RBFS
     end
 
     def self.next! (*piece_length)
-      if piece_length.length > 0 
+      if piece_length.length > 0
         then @string_to_parse.slice! (0..piece_length[0].to_i-1)
         else chunk, @string_to_parse = @string_to_parse.split(":", 2)
         chunk

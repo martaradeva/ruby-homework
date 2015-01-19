@@ -53,13 +53,13 @@ class TypeFilter < Filter
   end
 
   def accepts?(number)
-    criterion = -> {}
+    block = -> {}
     case @data_type
-      when :integer then criterion = -> (n) { n.is_a? Integer }
-      when :complex then criterion = -> (n) { n.is_a? Complex }
-      when :real    then criterion = -> (n) { n.is_a? Float or n.is_a? Rational }
+      when :integer then block = -> (n) { n.is_a? Integer }
+      when :complex then block = -> (n) { n.is_a? Complex }
+      when :real    then block = -> (n) { n.is_a? Float or n.is_a? Rational }
     end
-    Filter.new(&criterion).accepts?(number)
+    Filter.new(&block).accepts?(number)
   end
 end
 

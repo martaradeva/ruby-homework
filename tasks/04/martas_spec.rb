@@ -16,12 +16,12 @@ describe 'Command Line Toolkit' do
     end
   end
 
-  it 'simple puts debug' do
-    UI::TextScreen.draw do 
-      label text: '1'
-      label text: '2'
-    end
-  end
+  # it 'simple puts debug' do
+  #   UI::TextScreen.draw do 
+  #     label text: '1'
+  #     label text: '2'
+  #   end
+  # end
 
   it 'arranges components horizontally by default' do
     expect do
@@ -33,7 +33,18 @@ describe 'Command Line Toolkit' do
     RESULT
   end
 
-  it 'verical group orders elements vertically' do
+  it 'horizontal group orders elements horizontally' do
+    expect do
+      horizontal do
+        label text: '1'
+        label text: '2'
+      end
+    end.to render_as <<-RESULT
+      12
+    RESULT
+  end
+
+  it 'vertical group orders elements vertically' do
     expect do
       vertical do
         label text: '1'
@@ -45,31 +56,46 @@ describe 'Command Line Toolkit' do
     RESULT
   end
 
-  it 'can create a simple table' do
+  it 'can create simple table' do
     expect do
       vertical do
-        horizontal do
+        horizontal do 
           label text: '1'
-          label text: '2'
-          label text: '3'
+          label text: '1'
         end
-        horizontal do
-          label text: '4'
-          label text: '5'
-          label text: '6'
-        end
-        horizontal do
-          label text: '7'
-          label text: '8'
-          label text: '9'
-        end
+        label text: '2'
       end
     end.to render_as <<-RESULT
-      123
-      456
-      789
+      11
+      2
     RESULT
   end
+
+  # it 'can create a less simple table' do
+  #   expect do
+  #     vertical do
+  #       horizontal do
+  #         label text: '1'
+  #         label text: '2'
+  #         label text: '3'
+  #       end
+  #       horizontal do
+  #         label text: '4'
+  #         label text: '5'
+  #         label text: '6'
+  #       end
+  #       horizontal do
+  #         label text: '7'
+  #         label text: '8'
+  #         label text: '9'
+  #       end
+  #     end
+  #   end.to render_as <<-RESULT
+  #     123
+  #     456
+  #     789
+  #   RESULT
+  # end
 
   #   it 'can create a COMPLICATED table' do
   #   expect do
