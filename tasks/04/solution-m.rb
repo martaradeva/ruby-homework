@@ -3,7 +3,6 @@ module UI
   class TextScreen
 
     def self.draw &block
-      puts "DEBUG"
       @screen = Screen.new
       @screen.instance_eval(&block)
       @screen.group[0] = @screen.group[0].map{|element| [ element, "\n" ] }
@@ -48,7 +47,9 @@ module UI
       #@partial.each do |element| @group << [element] end
       #@group << @partial.map { |element| [element] }
       puts "group at horizontal = #{@group.inspect}"
-      @group[0] = transpond(@group[0])
+      if @group[0][0].is_a? Array 
+        then @group[0] = transpond(@group[0])
+      end
       puts "group after transpond = #{@group.inspect}"
       @group
     end
