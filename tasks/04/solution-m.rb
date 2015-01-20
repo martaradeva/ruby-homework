@@ -3,8 +3,10 @@ module UI
   class TextScreen
 
     def self.draw &block
+      puts "DEBUG"
       @screen = Screen.new
       @screen.instance_eval(&block)
+      @screen.group[0] = @screen.group[0].map{|element| [ element, "\n" ] }
       puts "screen.group in render = #{@screen.group.inspect}"
       @screen.group.flatten.join
     end
@@ -32,19 +34,51 @@ module UI
     def vertical &block
       @partial = UI::Screen.compose &block
       puts "partial of vertical = #{@partial.inspect}"
-      @group << @partial.map{|element| [ element, "\n" ] }
+      @group << @partial#.map{|element| [ element, "\n" ] }
       puts "group after vertical = #{@group.inspect}"
       @group
     end
 
     def horizontal &block
       @partial = UI::Screen.compose &block
-      puts "partial of horizontal = #{@partial.inspect}"
-      @partial << "\n"
+      #@partial << "\n"
+      @partial.map { |element| [element] }
       @group << @partial
-      puts "group after horizontal = #{@group.inspect}"
+      puts "partial of horizontal = #{@partial.map { |element| [element] }}"
+      #@partial.each do |element| @group << [element] end
+      #@group << @partial.map { |element| [element] }
+      puts "group at horizontal = #{@group.inspect}"
+      @group[0] = transpond(@group[0])
+      puts "group after transpond = #{@group.inspect}"
       @group
     end
+
+    def transpond(array)
+      new_array = []
+      (0..array.length-1).each do |index|
+        new_array[index] = []
+      end
+      puts "new_array = #{new_array.inspect}"
+      (0..array.length-1).each do |sub_array_index|
+        array[sub_array_index].each_with_index do |element, index|
+          new_array[index] << element
+        end
+      end
+      puts "new_array after transpond = #{new_array.inspect}"
+      new_array
+    end
+
+    # def transpond(array)
+    #   new_array = []
+    #   (0..array[0].length-1).each do |sub_array|
+    #       transpond_element = []
+    #       (0..array.length-1).each do |index|
+    #           transpond_element << sub_array[index]
+    #         end
+    #       new_array << transpond_element
+    #     end
+    #   new_array
+    # end
 
     def self.compose &block
       @screen = Screen.new
