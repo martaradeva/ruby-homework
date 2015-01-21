@@ -3,11 +3,12 @@ module UI
   class TextScreen
 
     def self.draw &block
+      puts "DEBUG"
       @screen = Screen.new
       @screen.instance_eval(&block)
-      @screen.group[0] = @screen.group[0].map{|element| [ element, "\n" ] }
-      puts "screen.group in render = #{@screen.group.inspect}"
-      @screen.group.flatten.join
+      #@screen.group[0] = @screen.group[0].map{|element| [ element, "\n" ] }
+      puts "screen.group.flatten.join '' in render = #{@screen.group.flatten.join ''}"
+      @screen.group.flatten.join ""
     end
 
   end
@@ -26,15 +27,23 @@ module UI
     def label (text, style: nil, border: nil)
       @lbl = TextLabel.new(text)
       add_group {@lbl}
-      puts "group when label = #{@group.inspect}"
+      #puts "group when label = #{@group.inspect}"
       @group
     end
 
     def vertical &block
+      puts "BEGIN VERTICAL"
       @partial = UI::Screen.compose &block
       puts "partial of vertical = #{@partial.inspect}"
-      @group << @partial#.map{|element| [ element, "\n" ] }
+      # if !@partial[0].is_a? Array 
+      #   then @partial.map {|element| element.to_s}
+      puts "partial[0]= #{@partial[0]}"
+      # puts "partial[0] << 's'= #{@partial[0]<<'s'}"
+      @partial.map {|element| element << "\n"}
+      puts "partial edited = #{@partial}"
+      @group << @partial
       puts "group after vertical = #{@group.inspect}"
+      puts "END VERTICAL"
       @group
     end
 
@@ -62,9 +71,10 @@ module UI
       puts "new_array = #{new_array.inspect}"
       (0..array.length-1).each do |sub_array_index|
         array[sub_array_index].each_with_index do |element, index|
-          new_array[index] << element
+          new_array[index] << element.chomp
         end
       end
+      new_array.map { |element| element << "\n" }
       puts "new_array after transpond = #{new_array.inspect}"
       new_array
     end
@@ -96,11 +106,18 @@ module UI
     end
 
     def inspect
-      @label.to_s
+      @label
+    end
+
+    def <<(string)
+      @label << string
+    end
+
+    def chomp
+      @label.chop
     end
 
     def to_s
-      # puts @label.to_s
       @label.to_s
     end
 

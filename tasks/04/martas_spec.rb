@@ -16,12 +16,12 @@ describe 'Command Line Toolkit' do
     end
   end
 
-  # it 'simple puts debug' do
-  #   UI::TextScreen.draw do 
-  #     label text: '1'
-  #     label text: '2'
-  #   end
-  # end
+  it 'simple puts debug' do
+    UI::TextScreen.draw do 
+      label text: '1'
+      label text: '2'
+    end
+  end
 
   it 'arranges components horizontally by default' do
     expect do
@@ -61,67 +61,89 @@ describe 'Command Line Toolkit' do
       vertical do
         horizontal do 
           label text: '1'
-          label text: '1'
+          label text: '2'
         end
-        label text: '2'
+        horizontal do 
+          label text: '3'
+          label text: '4'
+        end
       end
     end.to render_as <<-RESULT
-      11
-      2
+      12
+      34
     RESULT
   end
 
-  # it 'can create a less simple table' do
-  #   expect do
-  #     vertical do
-  #       horizontal do
-  #         label text: '1'
-  #         label text: '2'
-  #         label text: '3'
-  #       end
-  #       horizontal do
-  #         label text: '4'
-  #         label text: '5'
-  #         label text: '6'
-  #       end
-  #       horizontal do
-  #         label text: '7'
-  #         label text: '8'
-  #         label text: '9'
-  #       end
-  #     end
-  #   end.to render_as <<-RESULT
-  #     123
-  #     456
-  #     789
-  #   RESULT
-  # end
+  it 'can create a transponded table' do
+    expect do
+      horizontal do
+        vertical do 
+          label text: '1'
+          label text: '2'
+        end
+        vertical do 
+          label text: '3'
+          label text: '4'
+        end
+      end
+    end.to render_as <<-RESULT
+      13
+      24
+    RESULT
+  end
 
-  #   it 'can create a COMPLICATED table' do
-  #   expect do
-  #     horizontal do
-  #       vertical do
-  #         label text: '1'
-  #         label text: '2'
-  #         label text: '3'
-  #       end
-  #       vertical do
-  #         label text: '4'
-  #         label text: '5'
-  #         label text: '6'
-  #       end
-  #       vertical do
-  #         label text: '7'
-  #         label text: '8'
-  #         label text: '9'
-  #       end
-  #     end
-  #   end.to render_as <<-RESULT
-  #     147
-  #     258
-  #     369
-  #   RESULT
-  # end
+
+  it 'can create a less simple table' do
+    expect do
+      vertical do
+        horizontal do
+          label text: '1'
+          label text: '2'
+          label text: '3'
+        end
+        horizontal do
+          label text: '4'
+          label text: '5'
+          label text: '6'
+        end
+        horizontal do
+          label text: '7'
+          label text: '8'
+          label text: '9'
+        end
+      end
+    end.to render_as <<-RESULT
+      123
+      456
+      789
+    RESULT
+  end
+
+    it 'can create a COMPLICATED table' do
+    expect do
+      horizontal do
+        vertical do
+          label text: '1'
+          label text: '2'
+          label text: '3'
+        end
+        vertical do
+          label text: '4'
+          label text: '5'
+          label text: '6'
+        end
+        vertical do
+          label text: '7'
+          label text: '8'
+          label text: '9'
+        end
+      end
+    end.to render_as <<-RESULT
+      147
+      258
+      369
+    RESULT
+  end
 
   # it 'wraps vertically-aligned components correctly in border' do
   #   expect do
